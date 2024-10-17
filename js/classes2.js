@@ -1,11 +1,6 @@
+
 class Sprite {
-  constructor({
-    position,
-    imageSrc,
-    scale = 1,
-    framesMax = 1,
-    offset = { x: 0, y: 0 }
-  }) {
+  constructor({ position, imageSrc, scale = 1, framesMax = 1, offset = { x: 0, y: 0 }, framesHold = 5 }) {
     this.position = position;
     this.width = 50;
     this.height = 150;
@@ -15,7 +10,7 @@ class Sprite {
     this.framesMax = framesMax;
     this.framesCurrent = 0;
     this.framesElapsed = 0;
-    this.framesHold = 5;
+    this.framesHold = framesHold;
     this.offset = offset;
   }
 
@@ -35,7 +30,6 @@ class Sprite {
 
   animateFrames() {
     this.framesElapsed++;
-
     if (this.framesElapsed % this.framesHold === 0) {
       if (this.framesCurrent < this.framesMax - 1) {
         this.framesCurrent++;
@@ -61,38 +55,31 @@ class Fighter extends Sprite {
     framesMax = 1,
     offset = { x: 0, y: 0 },
     sprites,
-    attackBox = { offset: {}, width: 50, height: 50 } // Set default size
+    attackBox = { offset: {}, width: undefined, height: undefined },
+    framesHold = 5
   }) {
-    super({
-      position,
-      imageSrc,
-      scale,
-      framesMax,
-      offset
-    });
+    super({ position, imageSrc, scale, framesMax, offset, framesHold });
+    this.isJumping = false; 
+    this.framesHold = framesHold;
 
     this.velocity = velocity;
     this.width = 50;
     this.height = 150;
     this.lastKey;
     this.attackBox = {
-      position: {
-        x: this.position.x,
-        y: this.position.y
-      },
+      position: { x: this.position.x, y: this.position.y },
       offset: attackBox.offset,
       width: attackBox.width,
       height: attackBox.height
     };
     this.color = color;
-    this.isAttacking = false; // Initialize isAttacking
+    this.isAttacking;
     this.health = 100;
     this.framesCurrent = 0;
     this.framesElapsed = 0;
-    this.framesHold = 5;
+    this.framesHold = framesHold;
     this.sprites = sprites;
     this.dead = false;
-    this.isFacingRight = true; // Track facing direction
 
     for (const sprite in this.sprites) {
       sprites[sprite].image = new Image();
@@ -101,65 +88,70 @@ class Fighter extends Sprite {
   }
 
   update() {
-    if (this.dead) return; // Prevent updates if dead
     this.draw();
     if (!this.dead) this.animateFrames();
 
-    // Attack boxes
     this.attackBox.position.x = this.position.x + this.attackBox.offset.x;
     this.attackBox.position.y = this.position.y + this.attackBox.offset.y;
-
-    // Draw the attack box
-    // Uncomment the following to visualize the attack box
-    // c.fillRect(
-    //   this.attackBox.position.x,
-    //   this.attackBox.position.y,
-    //   this.attackBox.width,
-    //   this.attackBox.height
-    // );
 
     this.position.x += this.velocity.x;
     this.position.y += this.velocity.y;
 
-    // Gravity function
-    if (this.position.y + this.height + this.velocity.y >= canvas.height - 100) {
+    if (this.position.y + this.height + this.velocity.y >= canvas.height - 96) {
       this.velocity.y = 0;
-      this.position.y = canvas.height - 100 - this.height; // Adjust landing position
-      this.isJumping = false; // Reset isJumping when hitting the ground
+      this.position.y = 330;
+      this.isJumping = false;  // Reset isJumping when hitting the ground
     } else {
       this.velocity.y += gravity;
+    }
+
+    if (this.position.x < 0) {
+      this.position.x = 0;
+    }
+    if (this.position.x + this.width > canvas.width) {
+      this.position.x = canvas.width - this.width;
+    }
+
+    if (this.position.y < 0) {
+      this.position.y = 0;
+    }
+    if (this.position.y + this.height > canvas.height) {
+      this.position.y = canvas.height - this.height;
     }
   }
 
   attack() {
     this.switchSprite('attack1');
     this.isAttacking = true;
-    setTimeout(() => {
-      this.isAttacking = false; // Reset after the attack
-    }, 500); // Adjust timing to match your animation length
   }
 
   takeHit() {
-    this.health -= 6;
-
+    this.health -= 2;
     if (this.health <= 0) {
       this.switchSprite('death');
-    } else this.switchSprite('takeHit');
+    } else {
+      this.switchSprite('takehit');
+    }
   }
 
   switchSprite(sprite) {
     if (this.image === this.sprites.death.image) {
-      if (this.framesCurrent === this.sprites.death.framesMax - 1) {
+      if (this.framesCurrent === this.sprites.death.framesMax - 1)
         this.dead = true;
-      }
       return;
     }
 
-    // Override attack animation
-    if (this.image === this.sprites.attack1.image && this.framesCurrent < this.sprites.attack1.framesMax - 1) return;
+    if (
+      this.image === this.sprites.attack1.image &&
+      this.framesCurrent < this.sprites.attack1.framesMax - 1
+    )
+      return;
 
-    // Override when fighter gets hit
-    if (this.image === this.sprites.takeHit.image && this.framesCurrent < this.sprites.takeHit.framesMax - 1) return;
+    if (
+      this.image === this.sprites.takeHit.image &&
+      this.framesCurrent < this.sprites.takeHit.framesMax - 1
+    )
+      return;
 
     switch (sprite) {
       case 'idle':
@@ -197,7 +189,7 @@ class Fighter extends Sprite {
           this.framesCurrent = 0;
         }
         break;
-      case 'takeHit':
+      case 'takehit':
         if (this.image !== this.sprites.takeHit.image) {
           this.image = this.sprites.takeHit.image;
           this.framesMax = this.sprites.takeHit.framesMax;
@@ -214,3 +206,4 @@ class Fighter extends Sprite {
     }
   }
 }
+

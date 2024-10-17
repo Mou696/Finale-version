@@ -332,17 +332,19 @@ window.addEventListener('keyup', (event) => {
 
 // Function to handle key press and refresh the page
 function newGameKey(event) {
-  if (event.key === 'n' || event.key === 'N' || event.key === 'y' || event.key === 'Y') {
-    location.reload(); // Refresh the page
+  if (event.key.toLowerCase() === 'n' || event.key.toLowerCase() === 'y') {
+    location.reload(); // Reload the page to restart the game
   }
 }
 
-// End game based on health
-if (enemy.health <= 0 || player.health <= 0) {
-  determineWinner({ player, enemy, timerId });
+function checkEndGame() {
+  // End game based on health
+  if (enemy.health <= 0 || player.health <= 0) {
+    determineWinner({ player, enemy, timerId });
 
-  // Add keydown event listener for "Y" or "N" to refresh the page
-  document.addEventListener('keydown', newGameKey);
+    document.addEventListener('keydown', newGameKey);
+  }
 }
 
+checkEndGame();
 

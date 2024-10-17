@@ -62,7 +62,7 @@ const player = new Fighter({
       framesMax: 8
     },
     takeHit: {
-      imageSrc: './img/Take Hit.png',
+      imageSrc: './img/Take hit.png',
       framesMax: 3
     },
     death: {
@@ -115,7 +115,7 @@ const enemy = new Fighter({
       framesMax: 2
     },
     attack1: {
-      imageSrc: './img/kenji-Attack.png',
+      imageSrc: './img/kenji Attack.png',
       framesMax: 8
     },
     takeHit: {

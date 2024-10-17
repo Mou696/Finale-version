@@ -333,15 +333,7 @@ window.addEventListener('keyup', (event) => {
 // New game logic
 window.addEventListener('keydown', (event) => {
   if (event.key === 'n' || event.key === 'N' || event.key === 'y' || event.key === 'Y') {
-    player.health = 100;
-    enemy.health = 100;
-    player.dead = false;
-    enemy.dead = false;
-    // Reset player and enemy positions if needed
-    player.position.x = 0;
-    enemy.position.x = 400;
-    // Reset health bars
-    gsap.to('#playerHealth', { width: player.health + '%' });
-    gsap.to('#enemyHealth', { width: enemy.health + '%' });
+    location.reload(); // This will refresh the page
   }
 });
+
